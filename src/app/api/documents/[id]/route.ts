@@ -4,9 +4,13 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Document from '@/models/Document';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -20,9 +24,11 @@ export async function DELETE(
 
     await connectDB();
 
+    const { id } = await params;
+
     // Find and delete the document, ensuring it belongs to the authenticated user
     const document = await Document.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: session.user.id
     });
 

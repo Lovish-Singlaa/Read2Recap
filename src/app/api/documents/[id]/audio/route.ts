@@ -4,9 +4,13 @@ import { authOptions } from '@/lib/auth';
 import connectDB from '@/lib/mongodb';
 import Document from '@/models/Document';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: RouteParams
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,6 +23,7 @@ export async function PUT(
     }
 
     const { audioUrl } = await request.json();
+    const { id } = await params;
 
     if (!audioUrl) {
       return NextResponse.json(
@@ -31,7 +36,7 @@ export async function PUT(
 
     // Update document with audio URL
     const document = await Document.findOneAndUpdate(
-      { _id: params.id, userId: session.user.id },
+      { _id: id, userId: session.user.id },
       { audioUrl },
       { new: true }
     );
